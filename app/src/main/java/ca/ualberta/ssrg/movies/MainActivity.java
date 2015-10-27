@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 import ca.ualberta.ssrg.androidelasticsearch.R;
@@ -67,6 +68,7 @@ public class MainActivity extends Activity {
 		});
 	}
 
+	//sets up search thread attribute
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -84,12 +86,13 @@ public class MainActivity extends Activity {
 	 */
 	public void notifyUpdated() {
 		// Thread to update adapter after an operation
+		//Switch t UI thread
 		Runnable doUpdateGUIList = new Runnable() {
 			public void run() {
 				moviesViewAdapter.notifyDataSetChanged();
 			}
 		};
-		
+		//run on UI thread
 		runOnUiThread(doUpdateGUIList);
 	}
 
@@ -101,9 +104,12 @@ public class MainActivity extends Activity {
 		movies.clear();
 
 		// TODO: Extract search query from text view
+		EditText search = (EditText) findViewById(R.id.editText1);
+		//edittext1
 		
 		// TODO: Run the search thread
-		
+		SearchThread thread = new SearchThread(search.getText().toString());
+		thread.start();
 	}
 	
 	/**
@@ -126,7 +132,7 @@ public class MainActivity extends Activity {
 		startActivity(intent);
 	}
 
-
+//calling .start creates the new thread and calls the run object
 	class SearchThread extends Thread {
 		private String search;
 
@@ -138,6 +144,7 @@ public class MainActivity extends Activity {
 		public void run() {
 			movies.clear();
 			movies.addAll(movieManager.searchMovies(search, null));
+			//call notifyupdated to switch back to UI thread
 			notifyUpdated();
 		}
 		
